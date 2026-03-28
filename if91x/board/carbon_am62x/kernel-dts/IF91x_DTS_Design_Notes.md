@@ -78,6 +78,8 @@ DTS:   aliases { serial5 = &mcu_uart0; /* UART_B */ }
 
 This IF91x content was moved to `megasilk53/som-external` (branch `if91x-mfg`, under `if91x/` subtree) so it could be fully and readily accessed by external parties (Infineon) on a private branch of the public Ezurio repo — no credentials required for `repo init/sync` or Docker builds.
 
+Manifest: [`megasilk53/Summit-SOM-Buildroot-Release-Packages`](https://github.com/megasilk53/Summit-SOM-Buildroot-Release-Packages) branch `if91x-mfg`, file `carbon_13.0.57.22_if91x_devel.xml`.
+
 Original development was on [`megasilk53/cp_linux-summit-radio-devel-external`](https://github.com/megasilk53/cp_linux-summit-radio-devel-external/tree/if91x-mfg) branch `if91x-mfg` (private, unmaintained). Future internal work should consider moving back to `summit-radio-devel-external`.
 
 ## Authors
