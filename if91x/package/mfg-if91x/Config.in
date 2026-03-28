@@ -1,0 +1,7 @@
+config BR2_PACKAGE_MFG_IF91X
+	bool "IF91x manufacturing tools (itool, ChipLoad)"
+	select BR2_PACKAGE_LIBNL
+	help
+	  Infineon IF91x manufacturing and programming tools.
+	  itool: diagnostic/configuration tool
+	  ChipLoad: H1CP module firmware programming tool
