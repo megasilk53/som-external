@@ -1,0 +1,83 @@
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * M.2 SDIO overlay for Veda IF91x — direct M.2 slot (NOT DVK)
+ *
+ * For the IF91x DVK board (ribbon cable), use m2-sdio-if91x-dvk instead.
+ *
+ * On the Ezurio IF91x M.2 module:
+ *   W_DISABLE1# (pin 56 / WL_REG_ON) is not connected on the module.
+ *     We force it LOW via GPIO hog to ensure users of the DVK board
+ *     cannot accidentally use this overlay — the DVK requires
+ *     W_DISABLE1# HIGH for its MCU to boot.
+ *   W_DISABLE2# (pin 54 / BT_REG_ON) drives the internal regulator
+ *     and must be asserted HIGH for SDIO enumeration.
+ *
+ * Supply chain:
+ *   vcc_wifi_m2 (M2_POWER_EN, always-on)
+ *     → reg_bt_en_m2 (W_DISABLE2#, 1s startup)
+ *       → sdhci1 vmmc-supply
+ *
+ * The IF91x is a programmable MCU that loads its application from
+ * NVRAM at power-on — unlike a normal radio with masked ROM startup.
+ * 1s startup delay is required after W_DISABLE2# assertion.
+ *
+ * Copyright (C) 2025-2026 Ezurio LLC
+ */
+
+/dts-v1/;
+/plugin/;
+
+#include "k3-am625-carbon-m2.dtsi"
+
+&{/} {
+	reg_bt_en_m2: regulator-bt-en-m2 {
+		compatible = "regulator-fixed";
+		regulator-name = "reg_bt_en_m2";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+
+		vin-supply = <&vcc_wifi_m2>;
+
+		gpios = <&exp1 5 GPIO_ACTIVE_HIGH>;  /* BT_REG_ON / W_DISABLE2# (pin 54) */
+		enable-active-high;
+
+		startup-delay-us = <1000000>;
+		off-on-delay-us = <100>;
+	};
+};
+
+/* Force W_DISABLE1# LOW — not used on M.2 module, and ensures
+ * DVK users get an immediate failure if they select this overlay
+ * instead of the m2-sdio-if91x-dvk overlay.
+ */
+&exp1 {
+	wl-reg-on-force-low-hog {
+		gpio-hog;
+		gpios = <4 GPIO_ACTIVE_HIGH>;  /* WL_REG_ON / W_DISABLE1# (pin 56) */
+		output-low;
+		line-name = "W_DISABLE1# forced low (M.2 module)";
+	};
+};
+
+&sdhci1 { /* SDIO_A uSD / M.2_SDIO */
+	vmmc-supply = <&reg_bt_en_m2>;
+
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	wifi@1 {
+		reg = <1>;
+	};
+};
+
+&mcu_uart0 {
+	status = "okay";
+};
+
+&wifi_wakeup_m2 {
+	status = "disabled";
+};
+
+&exp2 {
+	/delete-property/ wakeup-source;
+};

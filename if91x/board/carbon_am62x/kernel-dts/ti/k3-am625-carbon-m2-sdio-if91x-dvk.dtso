@@ -1,0 +1,75 @@
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * M.2 SDIO overlay for Veda IF91x DVK board (ribbon cable)
+ *
+ * For direct M.2 slot (no ribbon cable), use m2-sdio-if91x instead.
+ *
+ * On the IF91x DVK carrier board:
+ *   W_DISABLE1# (pin 56 / WL_REG_ON) drives the MCU's internal
+ *     regulator.  Must be asserted HIGH for the MCU to boot.
+ *   W_DISABLE2# (pin 54 / BT_REG_ON) is not used on the DVK.
+ *
+ * The DVK connects to the Carbon via a ribbon cable which cannot
+ * sustain UHS (1.8V) SDIO signaling reliably.  no-1-8-v forces
+ * the bus to 3.3V High Speed mode, avoiding CRC/EILSEQ errors.
+ *
+ * Supply chain:
+ *   vcc_wifi_m2 (M2_POWER_EN, always-on)
+ *     → reg_wifi_en_m2 (W_DISABLE1#, 1s startup)
+ *       → sdhci1 vmmc-supply
+ *
+ * The IF91x is a programmable MCU that loads its application from
+ * NVRAM at power-on — unlike a normal radio with masked ROM startup.
+ * 1s startup delay is required after W_DISABLE1# assertion.
+ *
+ * Copyright (C) 2025-2026 Ezurio LLC
+ */
+
+/dts-v1/;
+/plugin/;
+
+#include "k3-am625-carbon-m2.dtsi"
+
+&sdhci1 { /* SDIO_A uSD / M.2_SDIO */
+	vmmc-supply = <&reg_wifi_en_m2>;
+	no-1-8-v;
+
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	wifi@1 {
+		reg = <1>;
+	};
+};
+
+/* Override reg_wifi_en_m2 startup delay for IF91x MCU boot time */
+&{/} {
+	reg_wifi_en_m2 {
+		startup-delay-us = <1000000>;
+	};
+};
+
+/* Force W_DISABLE2# LOW — not used on DVK, and ensures
+ * M.2 card users get an immediate failure if they select this
+ * overlay instead of the m2-sdio-if91x overlay.
+ */
+&exp1 {
+	bt-reg-on-force-low-hog {
+		gpio-hog;
+		gpios = <5 GPIO_ACTIVE_HIGH>;  /* BT_REG_ON / W_DISABLE2# (pin 54) */
+		output-low;
+		line-name = "W_DISABLE2# forced low (DVK)";
+	};
+};
+
+&mcu_uart0 {
+	status = "okay";
+};
+
+&wifi_wakeup_m2 {
+	status = "disabled";
+};
+
+&exp2 {
+	/delete-property/ wakeup-source;
+};
