@@ -1,0 +1,163 @@
+# IF91x Manufacturing Image — Build Instructions
+
+Build instructions for the `carbon_am62x_if91x_mfg` image for the Veda IF91x radio on the Ezurio Carbon AM62x platform. All repositories are public — no credentials required.
+
+## Manifest
+
+All source is fetched via Google `repo` tool using this manifest:
+
+```
+URL:    https://github.com/megasilk53/Summit-SOM-Buildroot-Release-Packages.git
+Branch: if91x-mfg
+File:   carbon_13.0.57.22_if91x_devel.xml
+```
+
+Source repositories referenced by the manifest:
+- `megasilk53/som-external` branch `if91x-mfg` — SOM BSP + IF91x packages under `if91x/` subtree
+- `Ezurio/wb-buildroot` tag `LRD-REL-13.0.57.22` — Buildroot
+- `Ezurio/u-boot-som` tag `LRD-REL-13.0.57.22` — U-Boot
+- `Ezurio/lrd-userspace-examples` tag `LRD-REL-13.0.0.116`
+- `Ezurio/summit-radio-external` branch `lrd-13.0.40.x` — Summit radio stack
+
+## Option A: Build Without Docker (Native Linux)
+
+### Prerequisites
+
+Ubuntu 22.04 host with the following packages:
+
+```
+sudo apt-get install -y bc bison build-essential cmake cpio curl file flex git \
+    libncurses-dev libssl-dev locales pkg-config python3 python3-pip \
+    python3-setuptools rsync unzip wget zlib1g-dev
+sudo locale-gen en_US.UTF-8
+```
+
+Install the `repo` tool:
+
+```
+sudo curl -fsSL https://storage.googleapis.com/git-repo-downloads/repo -o /usr/local/bin/repo
+sudo chmod a+x /usr/local/bin/repo
+```
+
+### Fetch Source
+
+```
+mkdir if91x-build && cd if91x-build
+repo init -u https://github.com/megasilk53/Summit-SOM-Buildroot-Release-Packages.git \
+    -b if91x-mfg -m carbon_13.0.57.22_if91x_devel.xml --depth=1
+repo sync -j8
+```
+
+### Build
+
+```
+cd som-external
+make carbon_am62x_if91x_mfg
+```
+
+Build output will be in `output/carbon_am62x_if91x_mfg/images/`:
+- `carbon_am62x_if91x_mfg.swu` — firmware update image (use with `fw_update` on a running board)
+- `carbon_am62x_if91x_mfg-summit-0.13.0.0.tar.bz2` — release archive (includes `mksdcard.sh` for initial SD card creation)
+
+### Troubleshooting
+
+If the parallel build fails, retry from within the output directory without parallelism:
+
+```
+cd output/carbon_am62x_if91x_mfg
+make
+```
+
+This runs packages sequentially and will show the actual error clearly.
+
+## Option B: Build With Docker
+
+### Prerequisites
+
+Docker installed on the host. No other dependencies required — everything is installed inside the container.
+
+### Dockerfile
+
+Create the following `Dockerfile`:
+
+```dockerfile
+FROM ubuntu:22.04
+
+ENV DEBIAN_FRONTEND=noninteractive
+ENV LANG=en_US.UTF-8
+ENV LANGUAGE=en_US:en
+ENV LC_ALL=en_US.UTF-8
+
+RUN apt-get update && apt-get install -y \
+    bc bison build-essential cmake cpio curl file flex git \
+    libncurses-dev libssl-dev locales pkg-config python3 \
+    python3-pip python3-setuptools rsync ssh unzip wget zlib1g-dev \
+    && locale-gen en_US.UTF-8 \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN curl -fsSL https://storage.googleapis.com/git-repo-downloads/repo > /usr/local/bin/repo \
+    && chmod a+x /usr/local/bin/repo
+
+RUN useradd -m -s /bin/bash builder
+USER builder
+WORKDIR /home/builder
+
+RUN git config --global user.email "builder@docker" \
+    && git config --global user.name "Docker Builder" \
+    && git config --global color.ui false
+
+RUN mkdir -p /home/builder/.br2_dl_dir
+
+RUN repo init \
+        -u https://github.com/megasilk53/Summit-SOM-Buildroot-Release-Packages.git \
+        -b if91x-mfg \
+        -m carbon_13.0.57.22_if91x_devel.xml \
+        --depth=1 \
+    && repo sync -j8
+
+CMD ["bash", "-c", "cd som-external && make carbon_am62x_if91x_mfg"]
+```
+
+### Build the Docker Image
+
+```
+docker build -t if91x-mfg-repo:1.0 .
+```
+
+### Run the Build
+
+```
+docker run --name if91x-build \
+    -v ~/.br2_dl_dir:/home/builder/.br2_dl_dir \
+    if91x-mfg-repo:1.0
+```
+
+The `-v` mount shares the host's Buildroot download cache for faster builds. Omit it for a fully isolated build (will download everything from scratch).
+
+### Interactive Build
+
+```
+docker run -it \
+    -v ~/.br2_dl_dir:/home/builder/.br2_dl_dir \
+    if91x-mfg-repo:1.0 bash
+```
+
+Then inside the container:
+
+```
+cd som-external && make carbon_am62x_if91x_mfg
+```
+
+### Extract Build Artifacts
+
+```
+docker cp if91x-build:/home/builder/output/carbon_am62x_if91x_mfg/images/ ./images/
+```
+
+## Repository History
+
+Original development was on `megasilk53/cp_linux-summit-radio-devel-external` branch `if91x-mfg` (private, unmaintained). Moved to `megasilk53/som-external` branch `if91x-mfg` under `if91x/` subtree so external parties (Infineon) could access it without credentials on a public fork of the Ezurio repo.
+
+## Authors
+
+Erik Strack & Claude (Anthropic Claude Code)

@@ -1,0 +1,15 @@
+# Phase 2: Build layer — FROM the repo-synced image
+# This is separated so the build can use a host dl cache volume mount
+# and the long build is a single committed layer.
+#
+# Build:
+#   docker build -f Dockerfile.build -t if91x-mfg-builder:1.0 .
+#
+# Requires if91x-mfg-repo:1.0 from Phase 1.
+# Mount dl cache: -v ~/.br2_dl_dir:/home/builder/.br2_dl_dir
+
+FROM if91x-mfg-repo:1.0
+
+# Build target
+RUN cd som-external \
+    && make carbon_am62x_if91x_mfg
