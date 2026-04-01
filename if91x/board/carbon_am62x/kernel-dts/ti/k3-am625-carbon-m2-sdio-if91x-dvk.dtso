@@ -9,9 +9,12 @@
  *     regulator.  Must be asserted HIGH for the MCU to boot.
  *   W_DISABLE2# (pin 54 / BT_REG_ON) is not used on the DVK.
  *
- * The DVK connects to the Carbon via a ribbon cable which cannot
- * sustain UHS (1.8V) SDIO signaling reliably.  no-1-8-v forces
- * the bus to 3.3V High Speed mode, avoiding CRC/EILSEQ errors.
+ * The DVK connects to the Carbon via a cable assembly which cannot
+ * sustain UHS (1.8V) SDIO signaling reliably.  no-1-8-v is included
+ * here as an experimental workaround that forces the bus to 3.3V High
+ * Speed mode, avoiding CRC/EILSEQ errors seen with the cable assembly.
+ * This branch (dvk-cable-assembly-no-1-8-v-test) exists solely to test
+ * this workaround — no-1-8-v is NOT present on the if91x-mfg branch.
  *
  * Supply chain:
  *   vcc_wifi_m2 (M2_POWER_EN, always-on)
