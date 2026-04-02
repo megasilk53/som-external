@@ -5,7 +5,7 @@
 There are two overlays for the IF91x, used with the `carbon_am62x_if91x_mfg` buildroot defconfig:
 
 - **`m2-sdio-if91x`** — for the IF91x M.2 module plugged directly into the Carbon's M.2 slot
-- **`m2-sdio-if91x-dvk`** — for the IF91x DVK board connected via ribbon cable
+- **`m2-sdio-if91x-dvk`** — for the IF91x DVK board connected via micro-coaxial cable assembly
 
 Select with `set-mode m2-sdio-if91x` or `set-mode m2-sdio-if91x-dvk`.
 
@@ -28,7 +28,7 @@ vcc_wifi_m2 (M2_POWER_EN, always-on)
 
 W_DISABLE1# is forced LOW via GPIO hog. This ensures that if a DVK user accidentally selects this overlay, the DVK's MCU will not boot and SDIO enumeration will fail immediately — prompting them to use the correct DVK overlay. SDIO runs at DDR50 (UHS).
 
-### m2-sdio-if91x-dvk (ribbon cable)
+### m2-sdio-if91x-dvk (micro-coaxial cable assembly)
 
 ```
 vcc_wifi_m2 (M2_POWER_EN, always-on)
@@ -42,7 +42,7 @@ W_DISABLE2# is forced LOW via GPIO hog. This ensures that if an M.2 card user ac
 
 ### Hardware verification results
 
-| Overlay | DVK (ribbon cable) | M.2 card (direct slot) |
+| Overlay | DVK (cable assembly) | M.2 card (direct slot) |
 |---------|-------------------|----------------------|
 | m2-sdio-if91x-dvk | HS, enumerates ✓ | Fails (W_DISABLE2# LOW) ✓ |
 | m2-sdio-if91x | Fails (W_DISABLE1# LOW) ✓ | DDR50, enumerates, wlan0 created ✓ |
