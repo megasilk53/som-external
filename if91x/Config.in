@@ -1,0 +1,4 @@
+menu "Packages (IF91x)"
+source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/if91x/package/summit-infhosted-backports/Config.in"
+source "$BR2_EXTERNAL_SUMMIT_SOM_PATH/if91x/package/mfg-if91x/Config.in"
+endmenu

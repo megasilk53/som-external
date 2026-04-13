@@ -1,0 +1,49 @@
+// SPDX-License-Identifier: LicenseRef-Ezurio-Clause
+/*
+ * CTP SDIO DTS for Infineon IF91x — direct M.2 slot
+ *
+ * For the IF91x DVK board (cable assembly), use imx8mp-ctp-sdio-if91x-dvk instead.
+ *
+ * The IF91x is a programmable MCU that loads its application from NVRAM at
+ * power-on — unlike a standard radio with masked ROM startup.  A 1-second
+ * startup delay is required after W_DISABLE1# assertion before the SDIO bus
+ * can be enumerated.
+ *
+ * CTP M.2 W_DISABLE signal routing:
+ *   W_DISABLE1# (gpio2 6, SD1_DATA4, ball U26) — drives reg_m2_wdisable;
+ *     used as vmmc-supply to usdhc1 with 1s startup delay.
+ *   W_DISABLE2# — not wired on CTP; no fail-safe GPIO hog is possible.
+ *
+ * Supply chain:
+ *   reg_usdhc1_vmmc (M2_3V3, gpio1 11)
+ *     → reg_m2_wdisable (W_DISABLE1#, gpio2 6, 1s startup)
+ *       → usdhc1 vmmc-supply
+ *
+ * Copyright 2025-2026 Ezurio
+ */
+
+/dts-v1/;
+
+#include "imx8mp-ctp-sdio.dtsi"
+
+/ {
+	model = "Summit i.MX8M Plus CTP + IF91x (M.2 direct)";
+	compatible = "summit,imx8mp-ctp", "fsl,imx8mp";
+};
+
+/*
+ * Override the M.2 W_DISABLE1# regulator:
+ *   - Remove regulator-always-on so usdhc1 vmmc-supply gates the assertion.
+ *   - Add vin-supply chain from M2_3V3.
+ *   - Add 1s startup delay for IF91x MCU NVRAM boot time.
+ */
+&reg_m2_wdisable {
+	/delete-property/ regulator-always-on;
+	vin-supply = <&reg_usdhc1_vmmc>;
+	startup-delay-us = <1000000>;
+	off-on-delay-us = <100000>;
+};
+
+&usdhc1 {
+	vmmc-supply = <&reg_m2_wdisable>;
+};

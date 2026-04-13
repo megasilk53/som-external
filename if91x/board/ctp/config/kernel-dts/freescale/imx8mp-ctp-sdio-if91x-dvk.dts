@@ -1,0 +1,62 @@
+// SPDX-License-Identifier: LicenseRef-Ezurio-Clause
+/*
+ * CTP SDIO DTS for Infineon IF91x DVK board (cable assembly)
+ *
+ * For direct M.2 slot (no cable), use imx8mp-ctp-sdio-if91x instead.
+ *
+ * On the IF91x DVK board, W_DISABLE1# drives the MCU's internal regulator
+ * and must be asserted HIGH before the MCU can boot.
+ *
+ * The IF91x is a programmable MCU that loads its application from NVRAM at
+ * power-on — unlike a standard radio with masked ROM startup.  A 1-second
+ * startup delay is required after W_DISABLE1# assertion before the SDIO bus
+ * can be enumerated.
+ *
+ * CTP M.2 W_DISABLE signal routing:
+ *   W_DISABLE1# (gpio2 6, SD1_DATA4, ball U26) — drives reg_m2_wdisable;
+ *     used as vmmc-supply to usdhc1 with 1s startup delay.
+ *   W_DISABLE2# — not wired on CTP; no fail-safe GPIO hog is possible.
+ *
+ * Supply chain:
+ *   reg_usdhc1_vmmc (M2_3V3, gpio1 11)
+ *     → reg_m2_wdisable (W_DISABLE1#, gpio2 6, 1s startup)
+ *       → usdhc1 vmmc-supply
+ *
+ * Cable assembly and UHS note:
+ *   This DTS defaults to UHS (1.8V signalling) and assumes cable assembly
+ *   signal integrity is adequate.  If SDIO CRC errors are observed with the
+ *   DVK cable, add "no-1-8-v;" to &usdhc1 below to force 3.3V High Speed
+ *   mode.
+ *
+ * Copyright 2025-2026 Ezurio
+ */
+
+/dts-v1/;
+
+#include "imx8mp-ctp-sdio.dtsi"
+
+/ {
+	model = "Summit i.MX8M Plus CTP + IF91x DVK (cable assembly)";
+	compatible = "summit,imx8mp-ctp", "fsl,imx8mp";
+};
+
+/*
+ * Override the M.2 W_DISABLE1# regulator:
+ *   - Remove regulator-always-on so usdhc1 vmmc-supply gates the assertion.
+ *   - Add vin-supply chain from M2_3V3.
+ *   - Add 1s startup delay for IF91x MCU NVRAM boot time.
+ *
+ * On the DVK, W_DISABLE1# assertion enables the MCU's internal regulator.
+ */
+&reg_m2_wdisable {
+	/delete-property/ regulator-always-on;
+	vin-supply = <&reg_usdhc1_vmmc>;
+	startup-delay-us = <1000000>;
+	off-on-delay-us = <100000>;
+};
+
+&usdhc1 {
+	vmmc-supply = <&reg_m2_wdisable>;
+	/* Uncomment if DVK cable causes SDIO CRC errors at UHS speeds: */
+	/* no-1-8-v; */
+};

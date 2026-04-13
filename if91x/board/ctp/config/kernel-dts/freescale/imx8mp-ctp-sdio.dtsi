@@ -1,0 +1,46 @@
+// SPDX-License-Identifier: LicenseRef-Ezurio-Clause
+/*
+ * Copyright 2024 Ezurio
+ */
+
+#include "imx8mp-ctp.dtsi"
+
+/ {
+	wifi_pwrseq: wifipwrseqgrp {
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_m2_sdio_reset>;
+
+		compatible = "mmc-pwrseq-simple";
+		// M2_SD_nRST, SD1_RESET_B, ball W25
+		reset-gpios = <&gpio2 10 GPIO_ACTIVE_LOW>;
+
+		power-off-delay-us = <100000>;
+		post-power-on-delay-ms = <1>;
+	};
+
+	reg_m2_wdisable: regulator-m2-wdisable {
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_pcie_disable>;
+
+		compatible = "regulator-fixed";
+
+		regulator-name = "PCIE W_DISABLE1";
+
+		// gpio2 6 SD1_DATA4, M2_WDISABLE1 (M2 W_DISABLE1#), ball U26
+		gpio = <&gpio2 6 GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+		regulator-always-on;
+	};
+};
+
+&usdhc1 {
+	status = "okay";
+
+	assigned-clocks = <&clk IMX8MP_CLK_USDHC1>;
+	assigned-clock-rates = <400000000>;
+
+	mmc-pwrseq = <&wifi_pwrseq>;
+
+	non-removable;
+	keep-power-in-suspend;
+};

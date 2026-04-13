@@ -1,0 +1,29 @@
+#! /bin/sh
+case "${1}" in
+  pcie)
+    CONFN="conf-imx8mp-ctp-pcie"
+    ;;
+  sdio)
+    CONFN="conf-imx8mp-ctp-sdio"
+    ;;
+  sdio-if91x)
+    CONFN="conf-imx8mp-ctp-sdio-if91x"
+    ;;
+  sdio-if91x-dvk)
+    CONFN="conf-imx8mp-ctp-sdio-if91x-dvk"
+    ;;
+  *)
+    dts_list="pcie | sdio | sdio-if91x | sdio-if91x-dvk"
+    eval "$(resize)"; printf "usage: set-radio-mode [%s] [poweroff]\n" "${dts_list}" | fold -s -w $COLUMNS
+    exit 1
+    ;;
+esac
+
+CONF=$(fw_printenv -n conf)
+
+[ "${CONF}" != "#${CONFN}.dtb" ] || exit
+
+fw_setenv conf "#${CONFN}.dtb"
+
+[ "${2}" != "poweroff" ] || poweroff -f
+reboot -f

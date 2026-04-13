@@ -1,0 +1,8 @@
+// SPDX-License-Identifier: LicenseRef-Ezurio-Clause
+/*
+ * Copyright 2024 Ezurio
+ */
+
+/dts-v1/;
+
+#include "imx8mp-ctp-sdio.dtsi"

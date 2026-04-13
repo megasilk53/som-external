@@ -1,0 +1,5 @@
+config BR2_PACKAGE_SUMMIT_INFHOSTED_BACKPORTS
+	bool "Infineon infhosted backports (IF91x hosted mode)"
+	help
+	  Pre-built backports kernel modules and load script for the
+	  Infineon IF91x radio in hosted mode (H1CP).
