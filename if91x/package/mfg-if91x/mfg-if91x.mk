@@ -2,8 +2,9 @@
 #
 # IF91x Manufacturing Tools
 #
-# Pre-built binaries from TI-AM62x_03182026.zip
-# (delivered via email 2026-03-18 by Infineon).
+# Pre-built binaries (itool, ChipLoad).
+# Place the actual binaries from the Infineon package drop into
+# if91x/package/mfg-if91x/files/ before building.
 #
 ################################################################################
 

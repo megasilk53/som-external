@@ -1,0 +1,8 @@
+#!/bin/sh
+# PLACEHOLDER — not the real itool binary
+#
+# Copy the actual itool binary from the Infineon package drop into:
+#   som-external/if91x/package/mfg-if91x/files/itool
+# before building.
+echo "ERROR: itool is a placeholder. Replace with the actual binary from the Infineon package drop." >&2
+exit 1

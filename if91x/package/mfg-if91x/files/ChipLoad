@@ -1,0 +1,8 @@
+#!/bin/sh
+# PLACEHOLDER — not the real ChipLoad binary
+#
+# Copy the actual ChipLoad binary from the Infineon package drop into:
+#   som-external/if91x/package/mfg-if91x/files/ChipLoad
+# before building.
+echo "ERROR: ChipLoad is a placeholder. Replace with the actual binary from the Infineon package drop." >&2
+exit 1

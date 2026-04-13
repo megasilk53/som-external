@@ -2,9 +2,9 @@
 #
 # Infineon infhosted backports (IF91x hosted mode)
 #
-# Pre-built kernel modules and load script from TI-AM62x_03182026.zip
-# (delivered via email 2026-03-18 by Infineon).
-# compat.ko backported from v6.1.110-betelgeuse-infhost (Infineon tree).
+# Pre-built backports kernel modules and load script.
+# Place the actual NCP .ko driver files from the Infineon package drop into
+# if91x/package/summit-infhosted-backports/files/ before building.
 #
 ################################################################################
 

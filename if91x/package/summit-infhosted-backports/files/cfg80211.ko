@@ -1,0 +1,8 @@
+#!/bin/sh
+# PLACEHOLDER — not a real kernel module
+#
+# Copy the actual cfg80211.ko from the Infineon NCP driver package drop into:
+#   som-external/if91x/package/summit-infhosted-backports/files/cfg80211.ko
+# before building.
+echo "ERROR: cfg80211.ko is a placeholder. Replace with the actual NCP .ko from the Infineon package drop." >&2
+exit 1
