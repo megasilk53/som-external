@@ -1,0 +1,7 @@
+#!/bin/sh
+# PLACEHOLDER — not the real binary
+#
+# Copy the actual binary from the Infineon package drop into the
+# corresponding files/ directory before building.
+echo "ERROR: This is a placeholder. Replace with the actual binary from the Infineon package drop." >&2
+exit 1
