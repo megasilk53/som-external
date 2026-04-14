@@ -18,9 +18,8 @@
  *     Used as vmmc-supply to usdhc1 with 1s startup delay.
  *   W_DISABLE2# (gpio2 7, SD1_DATA5, ball AA29) — BT_REG_ON, pin 54.
  *     NOT used on DVK board.
- *     Hogged LOW as fail-safe: loading this overlay with the wrong hardware
- *     (M.2 direct) forces W_DISABLE2# LOW so the MCU cannot boot, causing an
- *     immediate SDIO enumeration failure rather than silent misbehaviour.
+ *     reg_m2_wdisable2 regulator-always-on removed so pin stays LOW
+ *     (fail-safe: M.2 direct users loading this overlay get immediate SDIO failure).
  *
  * Supply chain:
  *   reg_usdhc1_vmmc (M2_3V3, gpio1 11)
@@ -60,18 +59,20 @@
 	off-on-delay-us = <100>;
 };
 
+/*
+ * W_DISABLE2# (gpio2 7) is not used on the DVK board.
+ * Remove regulator-always-on so the regulator stays disabled and the
+ * pin is held LOW (enable-active-high + disabled = LOW).  This acts
+ * as a fail-safe: if the M.2 direct overlay is accidentally used instead,
+ * W_DISABLE2# is HIGH (M.2 module needs it) and the MCU boots; here it
+ * is LOW so any M.2 module user gets an immediate SDIO failure.
+ */
+&reg_m2_wdisable2 {
+	/delete-property/ regulator-always-on;
+};
+
 &usdhc1 {
 	vmmc-supply = <&reg_m2_wdisable1>;
 	/* Uncomment if DVK cable causes SDIO CRC errors at UHS speeds: */
 	/* no-1-8-v; */
-};
-
-/* Hog W_DISABLE2# LOW — not used on DVK; fail-safe for wrong overlay */
-&gpio2 {
-	wdisable2-force-low-hog {
-		gpio-hog;
-		gpios = <7 GPIO_ACTIVE_HIGH>;
-		output-low;
-		line-name = "W_DISABLE2# forced low (DVK)";
-	};
 };

@@ -15,9 +15,8 @@
  *     Used as vmmc-supply to usdhc1 with 1s startup delay.
  *   W_DISABLE1# (gpio2 6, SD1_DATA4, ball U26) — WL_REG_ON, pin 56.
  *     NOT connected on IF91x M.2 module.
- *     Hogged LOW as fail-safe: loading this overlay with the wrong hardware
- *     (DVK) forces W_DISABLE1# LOW so the MCU cannot boot, causing an
- *     immediate SDIO enumeration failure rather than silent misbehaviour.
+ *     reg_m2_wdisable1 regulator-always-on removed so pin stays LOW
+ *     (fail-safe: DVK users loading this overlay get immediate SDIO failure).
  *
  * Supply chain:
  *   reg_usdhc1_vmmc (M2_3V3, gpio1 11)
@@ -49,16 +48,18 @@
 	off-on-delay-us = <100>;
 };
 
-&usdhc1 {
-	vmmc-supply = <&reg_m2_wdisable2>;
+/*
+ * W_DISABLE1# (gpio2 6) is not connected on the IF91x M.2 module.
+ * Remove regulator-always-on so the regulator stays disabled and the
+ * pin is held LOW (enable-active-high + disabled = LOW).  This acts
+ * as a fail-safe: if the DVK overlay is accidentally used instead,
+ * W_DISABLE1# is HIGH (DVK needs it) and the MCU boots; here it is
+ * LOW so any DVK user gets an immediate SDIO failure.
+ */
+&reg_m2_wdisable1 {
+	/delete-property/ regulator-always-on;
 };
 
-/* Hog W_DISABLE1# LOW — not connected on M.2 module; fail-safe for wrong overlay */
-&gpio2 {
-	wdisable1-force-low-hog {
-		gpio-hog;
-		gpios = <6 GPIO_ACTIVE_HIGH>;
-		output-low;
-		line-name = "W_DISABLE1# forced low (IF91x M.2 module)";
-	};
+&usdhc1 {
+	vmmc-supply = <&reg_m2_wdisable2>;
 };
