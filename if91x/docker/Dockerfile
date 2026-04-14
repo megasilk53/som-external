@@ -6,9 +6,10 @@ ENV LANGUAGE=en_US:en
 ENV LC_ALL=en_US.UTF-8
 
 RUN apt-get update && apt-get install -y \
-    bc bison build-essential cmake cpio curl file flex git \
-    libncurses-dev libssl-dev locales pkg-config python3 \
-    python3-pip python3-setuptools rsync ssh unzip wget zlib1g-dev \
+    bc bison bmap-tools build-essential cmake cpio curl dosfstools \
+    e2fsprogs fdisk file flex git libncurses-dev libssl-dev locales \
+    mtools pkg-config python3 python3-pip python3-setuptools rsync ssh \
+    unzip wget zlib1g-dev \
     && locale-gen en_US.UTF-8 \
     && rm -rf /var/lib/apt/lists/*
 
@@ -32,4 +33,4 @@ RUN repo init \
         --depth=1 \
     && repo sync -j8
 
-CMD ["bash", "-c", "cd som-external && make ctp_if91x_mfg"]
+CMD ["bash", "-c", "cd som-external && make ctp_if91x_mfg && cd /home/builder/output/ctp_if91x_mfg/images && bash mksdimg.sh sdcard.img"]
