@@ -35,15 +35,15 @@
 
 	reg_m2_wdisable2: regulator-m2-wdisable2 {
 		pinctrl-names = "default";
-		pinctrl-0 = <&pinctrl_pcie_reset>;
+		pinctrl-0 = <&pinctrl_m2_wdisable2>;
 
 		compatible = "regulator-fixed";
 
 		regulator-name = "M2 W_DISABLE2#";
 
-		// W_DISABLE2# (BT_REG_ON, pin 54), SD1_DATA5, gpio2 7, ball AA29
+		// W_DISABLE2# (BT_REG_ON, pin 54), SAI5_RXD1, gpio3 22, ball AD16
 		// Drives IF91x MCU internal regulator on M.2 module
-		gpio = <&gpio2 7 GPIO_ACTIVE_HIGH>;
+		gpio = <&gpio3 22 GPIO_ACTIVE_HIGH>;
 		enable-active-high;
 		regulator-always-on;
 	};

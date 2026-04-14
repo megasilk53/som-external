@@ -568,11 +568,17 @@
 		>;
 	};
 
-	// W_DISABLE1, shared with SDIO as disable
+	// W_DISABLE1# (WL_REG_ON, M.2 pin 56): SD1_DATA4, GPIO2_IO06, ball U26
 	pinctrl_pcie_disable: pciedisablegrp {
 		fsl,pins = <
-		        // SD1_DATA4, M2_WDISABLE1, ball U26
 			MX8MP_IOMUXC_SD1_DATA4__GPIO2_IO06         0x00000000
+		>;
+	};
+
+	// W_DISABLE2# (BT_REG_ON, M.2 pin 54): SAI5_RXD1, GPIO3_IO22, ball AD16
+	pinctrl_m2_wdisable2: m2wdisable2grp {
+		fsl,pins = <
+			MX8MP_IOMUXC_SAI5_RXD1__GPIO3_IO22         0x00000000
 		>;
 	};
 

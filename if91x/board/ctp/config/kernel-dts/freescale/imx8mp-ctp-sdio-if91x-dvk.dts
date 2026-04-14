@@ -16,7 +16,7 @@
  *   W_DISABLE1# (gpio2 6, SD1_DATA4, ball U26) — WL_REG_ON, pin 56.
  *     Drives the IF91x MCU internal regulator on the DVK board.
  *     Used as vmmc-supply to usdhc1 with 1s startup delay.
- *   W_DISABLE2# (gpio2 7, SD1_DATA5, ball AA29) — BT_REG_ON, pin 54.
+ *   W_DISABLE2# (gpio3 22, SAI5_RXD1, ball AD16) — BT_REG_ON, pin 54.
  *     NOT used on DVK board.
  *     reg_m2_wdisable2 regulator-always-on removed so pin stays LOW
  *     (fail-safe: M.2 direct users loading this overlay get immediate SDIO failure).
