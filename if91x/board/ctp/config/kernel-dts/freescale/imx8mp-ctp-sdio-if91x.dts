@@ -20,7 +20,7 @@
  *
  * Supply chain:
  *   reg_usdhc1_vmmc (M2_3V3, gpio1 11)
- *     → reg_m2_wdisable2 (W_DISABLE2#, gpio2 7, 1s startup)
+ *     → reg_m2_wdisable2 (W_DISABLE2#, gpio3 22, 1s startup)
  *       → usdhc1 vmmc-supply
  *
  * Copyright 2025-2026 Ezurio

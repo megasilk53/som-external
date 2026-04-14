@@ -60,7 +60,7 @@
 };
 
 /*
- * W_DISABLE2# (gpio2 7) is not used on the DVK board.
+ * W_DISABLE2# (gpio3 22) is not used on the DVK board.
  * Remove regulator-always-on so the regulator stays disabled and the
  * pin is held LOW (enable-active-high + disabled = LOW).  This acts
  * as a fail-safe: if the M.2 direct overlay is accidentally used instead,
