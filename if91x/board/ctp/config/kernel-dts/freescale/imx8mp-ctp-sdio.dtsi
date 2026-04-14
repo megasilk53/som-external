@@ -18,16 +18,32 @@
 		post-power-on-delay-ms = <1>;
 	};
 
-	reg_m2_wdisable: regulator-m2-wdisable {
+	reg_m2_wdisable1: regulator-m2-wdisable1 {
 		pinctrl-names = "default";
 		pinctrl-0 = <&pinctrl_pcie_disable>;
 
 		compatible = "regulator-fixed";
 
-		regulator-name = "PCIE W_DISABLE1";
+		regulator-name = "M2 W_DISABLE1#";
 
-		// gpio2 6 SD1_DATA4, M2_WDISABLE1 (M2 W_DISABLE1#), ball U26
+		// W_DISABLE1# (WL_REG_ON, pin 56), SD1_DATA4, gpio2 6, ball U26
+		// NOT connected on IF91x M.2 module; connected on DVK board
 		gpio = <&gpio2 6 GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+		regulator-always-on;
+	};
+
+	reg_m2_wdisable2: regulator-m2-wdisable2 {
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_pcie_reset>;
+
+		compatible = "regulator-fixed";
+
+		regulator-name = "M2 W_DISABLE2#";
+
+		// W_DISABLE2# (BT_REG_ON, pin 54), SD1_DATA5, gpio2 7, ball AA29
+		// Drives IF91x MCU internal regulator on M.2 module
+		gpio = <&gpio2 7 GPIO_ACTIVE_HIGH>;
 		enable-active-high;
 		regulator-always-on;
 	};

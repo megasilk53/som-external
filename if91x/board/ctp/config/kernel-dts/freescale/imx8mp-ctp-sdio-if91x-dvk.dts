@@ -13,13 +13,18 @@
  * can be enumerated.
  *
  * CTP M.2 W_DISABLE signal routing:
- *   W_DISABLE1# (gpio2 6, SD1_DATA4, ball U26) — drives reg_m2_wdisable;
- *     used as vmmc-supply to usdhc1 with 1s startup delay.
- *   W_DISABLE2# — not wired on CTP; no fail-safe GPIO hog is possible.
+ *   W_DISABLE1# (gpio2 6, SD1_DATA4, ball U26) — WL_REG_ON, pin 56.
+ *     Drives the IF91x MCU internal regulator on the DVK board.
+ *     Used as vmmc-supply to usdhc1 with 1s startup delay.
+ *   W_DISABLE2# (gpio2 7, SD1_DATA5, ball AA29) — BT_REG_ON, pin 54.
+ *     NOT used on DVK board.
+ *     Hogged LOW as fail-safe: loading this overlay with the wrong hardware
+ *     (M.2 direct) forces W_DISABLE2# LOW so the MCU cannot boot, causing an
+ *     immediate SDIO enumeration failure rather than silent misbehaviour.
  *
  * Supply chain:
  *   reg_usdhc1_vmmc (M2_3V3, gpio1 11)
- *     → reg_m2_wdisable (W_DISABLE1#, gpio2 6, 1s startup)
+ *     → reg_m2_wdisable1 (W_DISABLE1#, gpio2 6, 1s startup)
  *       → usdhc1 vmmc-supply
  *
  * Cable assembly and UHS note:
@@ -48,15 +53,25 @@
  *
  * On the DVK, W_DISABLE1# assertion enables the MCU's internal regulator.
  */
-&reg_m2_wdisable {
+&reg_m2_wdisable1 {
 	/delete-property/ regulator-always-on;
 	vin-supply = <&reg_usdhc1_vmmc>;
 	startup-delay-us = <1000000>;
-	off-on-delay-us = <100000>;
+	off-on-delay-us = <100>;
 };
 
 &usdhc1 {
-	vmmc-supply = <&reg_m2_wdisable>;
+	vmmc-supply = <&reg_m2_wdisable1>;
 	/* Uncomment if DVK cable causes SDIO CRC errors at UHS speeds: */
 	/* no-1-8-v; */
+};
+
+/* Hog W_DISABLE2# LOW — not used on DVK; fail-safe for wrong overlay */
+&gpio2 {
+	wdisable2-force-low-hog {
+		gpio-hog;
+		gpios = <7 GPIO_ACTIVE_HIGH>;
+		output-low;
+		line-name = "W_DISABLE2# forced low (DVK)";
+	};
 };
