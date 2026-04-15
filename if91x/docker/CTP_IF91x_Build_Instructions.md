@@ -178,6 +178,18 @@ conf=conf-imx8mp-ctp-sdio-if91x.dtb
 [    1.3x] mmc0: new ultra high speed DDR50 SDIO card at address 0001
 ```
 
+## Loading the IF91x Driver
+
+Once the SDIO card is enumerated, load the Infineon Hosted Mode driver:
+
+```
+load-infhosted.sh
+```
+
+This script loads `compat.ko`, `cfg80211.ko`, `infutil.ko`, and `infhosted.ko` in order.
+With the stub binaries in place the script will be present but the modules will not
+function — replace the stubs with the real Infineon NCP driver binaries first.
+
 ## Authors
 
 Erik Strack & Claude (Anthropic Claude Code)
