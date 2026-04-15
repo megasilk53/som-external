@@ -39,9 +39,9 @@ manufacturing utility functionality is required.
 Ubuntu 22.04 host with the following packages:
 
 ```
-sudo apt-get install -y bc bison build-essential cmake cpio curl file flex git \
-    libncurses-dev libssl-dev locales pkg-config python3 python3-pip \
-    python3-setuptools rsync unzip wget zlib1g-dev
+sudo apt-get install -y bc bison bmap-tools build-essential cmake cpio curl \
+    dosfstools fdisk file flex git libncurses-dev libssl-dev locales mtools \
+    pkg-config python3 python3-pip python3-setuptools rsync unzip wget zlib1g-dev
 sudo locale-gen en_US.UTF-8
 ```
 
@@ -70,8 +70,18 @@ make ctp_if91x_mfg
 
 Build output will be in `output/ctp_if91x_mfg/images/`:
 - `ctp_if91x_mfg.swu` — firmware update image (use with `fw_update` on a running board)
-- `sdcard.img.xz` — compressed SD card image for initial programming
 - `ctp_if91x_mfg-summit-0.13.0.0.tar.bz2` — release archive (includes `mksdcard.sh`)
+
+### Create SD Card Image
+
+`sdcard.img.xz` is not produced by the Buildroot build — run `mksdimg.sh` to create it:
+
+```
+cd output/ctp_if91x_mfg/images
+bash mksdimg.sh sdcard.img
+```
+
+Output: `sdcard.img.xz` and `sdcard.img.bmap`.
 
 ### Troubleshooting
 
@@ -134,12 +144,15 @@ cd som-external && make ctp_if91x_mfg
 
 ### Extract Build Artifacts
 
+The Docker CMD runs `mksdimg.sh` automatically after the Buildroot build, so
+`sdcard.img.xz` and `sdcard.img.bmap` are present when the container exits.
+
 ```
 docker cp ctp-if91x-build:/home/builder/output/ctp_if91x_mfg/images/ ./images/
 ```
 
 Key artifacts:
-- `images/sdcard.img.xz` — write to SD card with `bmaptool` or `dd`
+- `images/sdcard.img.xz` + `images/sdcard.img.bmap` — SD card image
 - `images/ctp_if91x_mfg.swu` — OTA update
 
 ### Write SD Card
