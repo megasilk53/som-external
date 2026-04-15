@@ -168,7 +168,7 @@ verify with:
 
 ```
 fw_printenv conf
-dmesg | grep -E 'mmc|usdhc'
+dmesg | grep -E 'mmc0|usdhc'
 ```
 
 Expected on success (M.2 direct):
